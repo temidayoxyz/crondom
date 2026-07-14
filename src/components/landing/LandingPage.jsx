@@ -454,7 +454,7 @@ function ComposerSection() {
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
           {/* Left — copy */}
-          <div className="space-y-6 sticky top-28">
+          <div className="space-y-6 md:sticky md:top-28">
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--color-text-main)]">
               Create a job without fighting the interface.
             </h2>
