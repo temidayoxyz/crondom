@@ -14,7 +14,7 @@ import { turso } from "../../lib/turso.js";
 export default function Overview() {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ active: 0, today: 0, successRate: 0, failed: 0 });
+  const [stats, setStats] = useState({ active: 0, today: 0, successRate: null, failed: 0 });
 
   useEffect(() => {
     if (!user) return;
@@ -24,16 +24,26 @@ export default function Overview() {
         args: [user.id],
       }),
       turso.execute({
-        sql: "SELECT COUNT(*) as count FROM execution_logs WHERE started_at >= datetime('now', '-1 day') AND job_id IN (SELECT id FROM cron_jobs WHERE user_id = ?)",
+        sql: `SELECT
+                COUNT(*) as total,
+                SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END) as successes,
+                SUM(CASE WHEN status = 'failure' THEN 1 ELSE 0 END) as failures
+              FROM execution_logs
+              WHERE started_at >= datetime('now', '-1 day')
+                AND job_id IN (SELECT id FROM cron_jobs WHERE user_id = ?)`,
         args: [user.id],
       }),
     ])
-      .then(([activeRes, todayRes]) => {
+      .then(([activeRes, logRes]) => {
+        const todayTotal = Number(logRes.rows[0].total) || 0;
+        const todaySuccesses = Number(logRes.rows[0].successes) || 0;
+        const todayFailures = Number(logRes.rows[0].failures) || 0;
+
         setStats({
-          active: activeRes.rows[0].count,
-          today: todayRes.rows[0].count,
-          successRate: 98,
-          failed: 0,
+          active: Number(activeRes.rows[0].count) || 0,
+          today: todayTotal,
+          successRate: todayTotal > 0 ? Math.round((todaySuccesses / todayTotal) * 100) : null,
+          failed: todayFailures,
         });
       })
       .catch(console.error)
@@ -78,8 +88,13 @@ export default function Overview() {
   const cards = [
     { label: "Active jobs", value: stats.active, icon: CalendarCheck, color: "text-[var(--color-green-strong)]" },
     { label: "Executions today", value: stats.today, icon: Activity, color: "text-[var(--color-blue-electric)]" },
-    { label: "Success rate", value: `${stats.successRate}%`, icon: CheckCircle, color: "text-[var(--color-green-strong)]" },
-    { label: "Failed executions", value: stats.failed, icon: AlertTriangle, color: "text-[var(--color-text-muted)]" },
+    {
+      label: "Success rate",
+      value: stats.successRate !== null ? `${stats.successRate}%` : "—",
+      icon: CheckCircle,
+      color: "text-[var(--color-green-strong)]",
+    },
+    { label: "Failed executions", value: stats.failed, icon: AlertTriangle, color: stats.failed > 0 ? "text-[var(--color-red-error)]" : "text-[var(--color-text-muted)]" },
   ];
 
   return (
