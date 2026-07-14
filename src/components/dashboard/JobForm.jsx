@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { turso } from "../../lib/turso.js";
-import { cronLabel, cronPresets } from "../../lib/labels.js";
+import { cronPresets } from "../../lib/labels.js";
 
 export default function JobForm() {
   const { user } = useUser();
@@ -46,8 +46,6 @@ export default function JobForm() {
       })
       .catch((err) => setError(err.message));
   }, [id, user]);
-
-  const cronLabels = Object.fromEntries(cronPresets.map(p => [p.value, p.label]));
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -153,37 +151,24 @@ export default function JobForm() {
           <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Schedule</h2>
 
           <div>
-            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Cron expression</label>
-            <input
-              type="text"
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">How often should this run?</label>
+            <select
               value={form.expression}
               onChange={(e) => update("expression", e.target.value)}
-              placeholder="*/5 * * * *"
-              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
-            />
-            <p className="mt-1.5 text-xs text-[var(--color-green-strong)] font-mono">
-              {cronLabels[form.expression] || "Custom schedule"}
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Quick presets</label>
-            <div className="flex flex-wrap gap-1.5">
-              {Object.entries(cronLabels).slice(0, 4).map(([expr, label]) => (
-                <button
-                  key={expr}
-                  type="button"
-                  onClick={() => update("expression", expr)}
-                  className={`px-2.5 py-1 text-[11px] font-mono rounded-lg border transition-all ${
-                    form.expression === expr
-                      ? "bg-[var(--color-green-strong)]/5 border-[var(--color-green-strong)]/20 text-[var(--color-green-strong)]"
-                      : "bg-[var(--color-bg-secondary)] border-[var(--color-border)] text-[var(--color-text-muted)]"
-                  }`}
-                >
-                  {label}
-                </button>
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-green-strong)] transition-colors appearance-none"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A909B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 12px center',
+                paddingRight: '36px',
+              }}
+            >
+              {cronPresets.map((preset) => (
+                <option key={preset.value} value={preset.value}>
+                  {preset.label}
+                </option>
               ))}
-            </div>
+            </select>
           </div>
         </div>
 
