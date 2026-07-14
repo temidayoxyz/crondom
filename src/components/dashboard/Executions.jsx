@@ -100,11 +100,11 @@ export default function Executions() {
                     </td>
                     <td className="px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)]">{log.status_code || "—"}</td>
                     <td className="px-4 py-3 text-xs text-[var(--color-text-secondary)] font-mono">
-                      {log.started_at ? new Date(log.started_at + "Z").toLocaleTimeString() : "—"}
+                      {log.started_at ? new Date(log.started_at).toLocaleString() : "—"}
                     </td>
                     <td className="px-4 py-3 text-xs text-[var(--color-text-secondary)] font-mono">
                       {log.finished_at && log.started_at
-                        ? ((new Date(log.finished_at + "Z") - new Date(log.started_at + "Z")) / 1000).toFixed(1) + "s"
+                        ? ((new Date(log.finished_at) - new Date(log.started_at)) / 1000).toFixed(1) + "s"
                         : "—"}
                     </td>
                   </tr>
