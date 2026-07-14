@@ -7,23 +7,24 @@ A web UI for managing cron jobs — built with **Vite + React**, talking directl
 ## Stack
 
 - **Framework**: React 18 + React Router
+- **Auth**: Clerk (free — 10K users)
 - **Build**: Vite
-- **Database**: Turso (via `@libsql/client/web` — browser HTTP client)
-- **Hosting**: GitHub Pages (free)
+- **Database**: Turso (via `@libsql/client/web`)
+- **Hosting**: GitHub Pages
 
 ## Setup
 
-### 1. Get your Turso database URL and token
+### 1. Create a Clerk application
 
-From the [Turso dashboard](https://turso.tech), grab your database URL and create an auth token.
+Go to [clerk.com](https://clerk.com) → **Add Application** → name it `crondom` → copy the **Publishable Key** (starts with `pk_live_`)
 
-### 2. Copy the env file
+### 2. Set up environment
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your Turso URL and auth token.
+Fill in your Turso DB URL, Turso token, and Clerk publishable key.
 
 ### 3. Install and run
 
@@ -34,20 +35,17 @@ npm run dev
 
 ### 4. Deploy to GitHub Pages
 
-Add your Turso secrets to GitHub → **Settings → Secrets and variables → Actions**:
+Add these secrets to **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 |---|---|
-| `VITE_TURSO_DATABASE_URL` | `libsql://crondom-xxx.turso.io` |
+| `VITE_TURSO_DATABASE_URL` | Your Turso DB URL |
 | `VITE_TURSO_AUTH_TOKEN` | Your Turso token |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Your Clerk publishable key |
 
-Then push to `main` — the deploy workflow will build and push to `gh-pages` branch.
+Push to `main` — deploy workflow builds and pushes to `gh-pages`.
 
-Your site will be live at: `https://temidayoxyz.github.io/crondom/`
-
-## Security note
-
-The Turso auth token is embedded in the JavaScript bundle at build time. For an MVP this is acceptable — Turso tokens can be scoped. For production, add a lightweight proxy layer.
+Your site: `https://temidayoxyz.github.io/crondom/`
 
 ---
 

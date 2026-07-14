@@ -1,28 +1,34 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { turso } from "../lib/turso.js";
 
 export default function Dashboard() {
+  const { user } = useUser();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   function loadJobs() {
+    if (!user) return;
     setLoading(true);
     turso
-      .execute("SELECT * FROM cron_jobs ORDER BY created_at DESC")
+      .execute({
+        sql: "SELECT * FROM cron_jobs WHERE user_id = ? ORDER BY created_at DESC",
+        args: [user.id],
+      })
       .then((res) => setJobs(res.rows))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }
 
-  useEffect(loadJobs, []);
+  useEffect(loadJobs, [user]);
 
   async function toggleJob(job) {
     try {
       await turso.execute({
-        sql: "UPDATE cron_jobs SET enabled = ?, updated_at = datetime('now') WHERE id = ?",
-        args: [job.enabled ? 0 : 1, job.id],
+        sql: "UPDATE cron_jobs SET enabled = ?, updated_at = datetime('now') WHERE id = ? AND user_id = ?",
+        args: [job.enabled ? 0 : 1, job.id, user.id],
       });
       loadJobs();
     } catch (err) {
@@ -34,8 +40,8 @@ export default function Dashboard() {
     if (!confirm("Delete this job?")) return;
     try {
       await turso.execute({
-        sql: "DELETE FROM cron_jobs WHERE id = ?",
-        args: [id],
+        sql: "DELETE FROM cron_jobs WHERE id = ? AND user_id = ?",
+        args: [id, user.id],
       });
       loadJobs();
     } catch (err) {

@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { turso } from "../lib/turso.js";
 
 export default function JobForm() {
+  const { user } = useUser();
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
@@ -20,9 +22,12 @@ export default function JobForm() {
 
   // Load existing job for editing
   useEffect(() => {
-    if (!id) return;
+    if (!id || !user) return;
     turso
-      .execute({ sql: "SELECT * FROM cron_jobs WHERE id = ?", args: [id] })
+      .execute({
+        sql: "SELECT * FROM cron_jobs WHERE id = ? AND user_id = ?",
+        args: [id, user.id],
+      })
       .then((res) => {
         if (res.rows.length === 0) {
           navigate("/");
@@ -39,7 +44,7 @@ export default function JobForm() {
         });
       })
       .catch((err) => setError(err.message));
-  }, [id]);
+  }, [id, user]);
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -50,7 +55,6 @@ export default function JobForm() {
     setSaving(true);
     setError(null);
 
-    // Basic validation
     if (!form.name.trim() || !form.url.trim()) {
       setError("Name and URL are required.");
       setSaving(false);
@@ -63,18 +67,19 @@ export default function JobForm() {
           sql: `UPDATE cron_jobs
                 SET name = ?, expression = ?, url = ?, method = ?,
                     headers = ?, body = ?, updated_at = datetime('now')
-                WHERE id = ?`,
+                WHERE id = ? AND user_id = ?`,
           args: [
             form.name, form.expression, form.url, form.method,
-            form.headers, form.body, id,
+            form.headers, form.body, id, user.id,
           ],
         });
       } else {
         await turso.execute({
           sql: `INSERT INTO cron_jobs (id, user_id, name, expression, url, method, headers, body)
-                VALUES (?, 'default', ?, ?, ?, ?, ?, ?)`,
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           args: [
             crypto.randomUUID(),
+            user.id,
             form.name, form.expression, form.url,
             form.method, form.headers, form.body,
           ],
@@ -96,7 +101,6 @@ export default function JobForm() {
       </h1>
 
       <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Name */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-1">Name</label>
           <input
@@ -108,7 +112,6 @@ export default function JobForm() {
           />
         </div>
 
-        {/* Cron expression */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-1">
             Cron Expression
@@ -123,7 +126,6 @@ export default function JobForm() {
           />
         </div>
 
-        {/* URL */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-1">URL</label>
           <input
@@ -135,7 +137,6 @@ export default function JobForm() {
           />
         </div>
 
-        {/* Method */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-1">Method</label>
           <select
@@ -149,7 +150,6 @@ export default function JobForm() {
           </select>
         </div>
 
-        {/* Headers */}
         <div>
           <label className="block text-sm font-medium text-gray-400 mb-1">
             Headers <span className="text-gray-600">(JSON)</span>
@@ -163,7 +163,6 @@ export default function JobForm() {
           />
         </div>
 
-        {/* Body */}
         {form.method !== "GET" && form.method !== "HEAD" && (
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-1">Body</label>

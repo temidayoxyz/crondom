@@ -35,6 +35,7 @@ jobs:
         env:
           VITE_TURSO_DATABASE_URL: ${{ secrets.VITE_TURSO_DATABASE_URL }}
           VITE_TURSO_AUTH_TOKEN: ${{ secrets.VITE_TURSO_AUTH_TOKEN }}
+          VITE_CLERK_PUBLISHABLE_KEY: ${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }}
 
       - uses: actions/configure-pages@v4
 

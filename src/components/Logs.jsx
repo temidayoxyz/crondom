@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import { turso } from "../lib/turso.js";
 
 export default function Logs() {
+  const { user } = useUser();
   const { id } = useParams();
   const [job, setJob] = useState(null);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!user) return;
+
     Promise.all([
-      turso.execute({ sql: "SELECT * FROM cron_jobs WHERE id = ?", args: [id] }),
+      turso.execute({
+        sql: "SELECT * FROM cron_jobs WHERE id = ? AND user_id = ?",
+        args: [id, user.id],
+      }),
       turso.execute({
         sql: `SELECT * FROM execution_logs
               WHERE job_id = ?
@@ -25,7 +32,7 @@ export default function Logs() {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, user]);
 
   if (loading) return <div className="text-center py-20 text-gray-500">Loading...</div>;
 
