@@ -33,7 +33,6 @@ export default function LandingPage() {
         <HowItWorksSection />
         <ExecutionSection />
         <FeatureBento />
-        <OpenSourceSection />
         <PricingFAQCtaSection />
       </main>
       <MarketingFooter />
@@ -50,7 +49,6 @@ function MarketingHeader() {
   const navLinks = [
     { label: "Product", href: "#features" },
     { label: "How it works", href: "#how-it-works" },
-    { label: "Open source", href: "#open-source" },
     { label: "Pricing", href: "#pricing" },
     { label: "FAQ", href: "#faq" },
   ];

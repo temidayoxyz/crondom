@@ -1,7 +1,27 @@
-import { SignUp } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import { useUser, SignUp } from "@clerk/clerk-react";
+import { Link, Navigate } from "react-router-dom";
 
 export default function SignUpPage() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="animate-scheduler-pulse">
+            <circle cx="16" cy="16" r="12" stroke="var(--color-green-strong)" strokeWidth="2" />
+            <circle cx="16" cy="16" r="3" fill="var(--color-green-signal)" />
+          </svg>
+          <span className="text-sm text-[var(--color-text-secondary)]">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSignedIn) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-bg-main)] flex">
       {/* Form side */}
@@ -49,12 +69,12 @@ export default function SignUpPage() {
             <rect x="50" y="50" width="160" height="160" rx="16" fill="var(--color-bg-elevated)" stroke="var(--color-border)" strokeWidth="1" />
             <circle cx="130" cy="100" r="4" fill="var(--color-green-signal)" />
             <text x="130" y="125" textAnchor="middle" fill="var(--color-text-main)" fontSize="13" fontFamily="Inter, sans-serif" fontWeight="600">Welcome to crondom</text>
-            <text x="130" y="145" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="11" fontFamily="Inter, sans-serif">Create your first job</text>
+            <text x="130" y="145" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="11" fontFamily="Inter, sans-serif">Create your first scheduled job</text>
             <rect x="70" y="160" width="120" height="10" rx="5" fill="var(--color-green-strong)" opacity="0.2" />
             <rect x="70" y="160" width="60" height="10" rx="5" fill="var(--color-green-signal)" />
           </svg>
           <p className="text-sm text-[var(--color-text-muted)] max-w-xs mx-auto">
-            Create a free account and start scheduling HTTP jobs in seconds.
+            Create an account and start scheduling HTTP jobs in seconds.
           </p>
         </div>
       </div>

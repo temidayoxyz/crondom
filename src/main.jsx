@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ClerkProvider
       publishableKey={PUBLISHABLE_KEY || "pk_test_placeholder"}
       afterSignInUrl="/dashboard"
-      afterSignUpUrl="/onboarding"
+      afterSignUpUrl="/dashboard"
       afterSignOutUrl="/"
     >
       <BrowserRouter>

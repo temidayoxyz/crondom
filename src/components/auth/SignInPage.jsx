@@ -1,7 +1,27 @@
-import { SignIn } from "@clerk/clerk-react";
-import { Link } from "react-router-dom";
+import { useUser, SignIn } from "@clerk/clerk-react";
+import { Link, Navigate } from "react-router-dom";
 
 export default function SignInPage() {
+  const { isLoaded, isSignedIn } = useUser();
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg-main)] flex items-center justify-center">
+        <div className="flex items-center gap-3">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" className="animate-scheduler-pulse">
+            <circle cx="16" cy="16" r="12" stroke="var(--color-green-strong)" strokeWidth="2" />
+            <circle cx="16" cy="16" r="3" fill="var(--color-green-signal)" />
+          </svg>
+          <span className="text-sm text-[var(--color-text-secondary)]">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isSignedIn) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[var(--color-bg-main)] flex">
       {/* Form side */}
@@ -67,10 +87,10 @@ export default function SignInPage() {
               })}
             </g>
             <circle cx="130" cy="130" r="8" fill="var(--color-green-signal)" className="animate-scheduler-pulse" />
-            <text x="130" y="160" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="12" fontFamily="Inter, sans-serif">Authenticating...</text>
+            <text x="130" y="160" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="12" fontFamily="Inter, sans-serif">Sign in to manage your jobs</text>
           </svg>
           <p className="text-sm text-[var(--color-text-muted)] max-w-xs mx-auto">
-            Sign in to access your scheduler, manage jobs, and monitor executions.
+            Access your scheduler, manage jobs, and monitor every execution.
           </p>
         </div>
       </div>
