@@ -758,11 +758,11 @@ function FeatureBento() {
 function OpenSourceSection() {
   const checks = [
     "Fork the repositories",
-    "Create a Turso database",
-    "Add Clerk credentials",
+    "Create a database",
+    "Add authentication credentials",
     "Add repository secrets",
-    "Enable GitHub Actions",
-    "Deploy to GitHub Pages",
+    "Enable the scheduler",
+    "Deploy the application",
     "Create the first job",
   ];
 
@@ -791,7 +791,7 @@ function OpenSourceSection() {
                 {
                   icon: <Code size={18} />,
                   title: "Open source",
-                  desc: "The complete codebase is available on GitHub. Fork it, audit it, extend it.",
+                  desc: "The complete codebase is publicly available. Fork it, audit it, extend it — it's yours.",
                 },
                 {
                   icon: <Clock size={18} />,
@@ -860,11 +860,11 @@ function PricingFAQCtaSection() {
     },
     {
       q: "Can I use a custom domain?",
-      a: "Yes. The frontend supports custom domains. Authentication also supports custom domains for branded sign-in pages.",
+      a: "Yes. The frontend supports custom domains for branded access.",
     },
     {
       q: "How do I deploy it myself?",
-      a: "Fork the two repositories, set up a database and auth provider, add the API secrets to GitHub, and push to main. Full instructions in the README.",
+      a: "Fork the two repositories, set up a database and authentication, add the API secrets, and push to main. Full instructions are in the README.",
     },
   ];
 
@@ -1030,7 +1030,7 @@ function MarketingFooter() {
             <h4 className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-4">Open source</h4>
             <ul className="space-y-2">
               {[
-                { label: "GitHub", href: "https://github.com/temidayoxyz/crondom" },
+                { label: "Source code", href: "https://github.com/temidayoxyz/crondom" },
                 { label: "Issues", href: "https://github.com/temidayoxyz/crondom/issues" },
                 { label: "Contributing", href: "https://github.com/temidayoxyz/crondom" },
                 { label: "License", href: "https://github.com/temidayoxyz/crondom" },
@@ -1047,7 +1047,7 @@ function MarketingFooter() {
 
         <div className="pt-8 border-t border-[var(--color-border)] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[var(--color-text-muted)]">
-            Built on GitHub Actions, Turso, and GitHub Pages.
+            Free and open-source.
           </p>
           <div className="flex items-center gap-4 text-xs text-[var(--color-text-muted)]">
             <a href="#" className="hover:text-[var(--color-text-secondary)]">Privacy</a>
