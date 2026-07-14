@@ -85,7 +85,7 @@ export default function JobForm() {
           ],
         });
       }
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
       setSaving(false);
@@ -190,7 +190,7 @@ export default function JobForm() {
           </button>
           <button
             type="button"
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/dashboard")}
             className="px-6 py-2.5 bg-gray-800 hover:bg-gray-700 rounded-lg text-sm transition-colors"
           >
             Cancel

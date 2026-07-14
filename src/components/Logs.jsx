@@ -61,7 +61,7 @@ export default function Logs() {
 
   return (
     <div>
-      <Link to="/" className="text-sm text-gray-500 hover:text-gray-300 mb-4 inline-block">
+      <Link to="/dashboard" className="text-sm text-gray-500 hover:text-gray-300 mb-4 inline-block">
         ← Back to Dashboard
       </Link>
 

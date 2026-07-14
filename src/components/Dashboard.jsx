@@ -57,7 +57,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <Link
-          to="/new"
+          to="/dashboard/new"
           className="px-4 py-2 bg-orange-600 hover:bg-orange-500 rounded-lg text-sm font-medium transition-colors"
         >
           + New Job
@@ -67,7 +67,7 @@ export default function Dashboard() {
       {jobs.length === 0 ? (
         <div className="text-center py-20 border border-dashed border-gray-700 rounded-xl">
           <p className="text-gray-500 mb-2">No cron jobs yet</p>
-          <Link to="/new" className="text-orange-400 hover:text-orange-300">
+          <Link to="/dashboard/new" className="text-orange-400 hover:text-orange-300">
             Create your first job →
           </Link>
         </div>
@@ -100,13 +100,13 @@ export default function Dashboard() {
               {/* Actions */}
               <div className="flex gap-2 shrink-0">
                 <Link
-                  to={`/logs/${job.id}`}
+                  to={`/dashboard/logs/${job.id}`}
                   className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 rounded-md transition-colors"
                 >
                   Logs
                 </Link>
                 <Link
-                  to={`/edit/${job.id}`}
+                  to={`/dashboard/edit/${job.id}`}
                   className="px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 rounded-md transition-colors"
                 >
                   Edit
