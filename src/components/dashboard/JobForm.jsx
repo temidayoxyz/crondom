@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { turso } from "../../lib/turso.js";
+import { cronLabel, cronPresets } from "../../lib/labels.js";
 
 export default function JobForm() {
   const { user } = useUser();
@@ -46,15 +47,7 @@ export default function JobForm() {
       .catch((err) => setError(err.message));
   }, [id, user]);
 
-  const cronLabels = {
-    "* * * * *": "Every minute",
-    "*/5 * * * *": "Every five minutes",
-    "*/15 * * * *": "Every fifteen minutes",
-    "0 * * * *": "Every hour",
-    "0 */6 * * *": "Every six hours",
-    "0 0 * * *": "Daily at midnight",
-    "0 9 * * 1-5": "Weekdays at 9 AM",
-  };
+  const cronLabels = Object.fromEntries(cronPresets.map(p => [p.value, p.label]));
 
   function update(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }));

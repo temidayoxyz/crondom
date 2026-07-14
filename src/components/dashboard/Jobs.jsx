@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { Plus, Search, Play, Pause, Trash2, ExternalLink, CalendarCheck, Activity } from "lucide-react";
 import { turso } from "../../lib/turso.js";
+import { cronLabel } from "../../lib/labels.js";
 
 export default function Jobs() {
   const { user } = useUser();
@@ -123,7 +124,7 @@ export default function Jobs() {
                         {job.name}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 font-mono text-xs text-[var(--color-text-secondary)]">{job.expression}</td>
+                    <td className="px-4 py-3 text-xs text-[var(--color-text-secondary)]">{cronLabel(job.expression)}</td>
                     <td className="px-4 py-3">
                       <span className="font-mono text-xs text-[var(--color-text-muted)] bg-[var(--color-bg-secondary)] px-2 py-0.5 rounded">
                         {job.method}

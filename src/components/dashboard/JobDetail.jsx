@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { ArrowLeft, Play, Pause, Edit3, Trash2, Clock, Globe, Terminal } from "lucide-react";
 import { turso } from "../../lib/turso.js";
+import { cronLabel } from "../../lib/labels.js";
 
 export default function JobDetail() {
   const { user } = useUser();
@@ -73,7 +74,7 @@ export default function JobDetail() {
       {/* Info cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { icon: Clock, label: "Schedule", value: job.expression },
+          { icon: Clock, label: "Schedule", value: cronLabel(job.expression) },
           { icon: Globe, label: "Method", value: job.method },
           { icon: Terminal, label: "Status", value: job.enabled ? "Active" : "Paused" },
           { icon: Activity, label: "Executions", value: logs.length },

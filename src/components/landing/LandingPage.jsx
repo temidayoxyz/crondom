@@ -421,10 +421,10 @@ function StackSection() {
 
 function ComposerSection() {
   const cronExamples = [
-    { expr: "* * * * *", desc: "Every minute" },
-    { expr: "*/5 * * * *", desc: "Every five minutes" },
-    { expr: "0 * * * *", desc: "Every hour" },
-    { expr: "0 0 * * *", desc: "Daily at midnight" },
+    "Every minute",
+    "Every 5 minutes",
+    "Every hour",
+    "Daily at midnight",
   ];
 
   return (
@@ -501,12 +501,12 @@ function ComposerSection() {
                   Runs every five minutes
                 </p>
                 <div className="mt-2 flex gap-2 flex-wrap">
-                  {cronExamples.map((ex) => (
+                  {cronExamples.map((label) => (
                     <span
-                      key={ex.expr}
-                      className="px-2 py-1 text-[10px] font-mono text-[var(--color-text-muted)] bg-[var(--color-bg-secondary)] rounded"
+                      key={label}
+                      className="px-2 py-1 text-[10px] text-[var(--color-text-muted)] bg-[var(--color-bg-secondary)] rounded"
                     >
-                      {ex.expr}
+                      {label}
                     </span>
                   ))}
                 </div>
