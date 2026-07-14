@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 import {
   Clock,
   Activity,
@@ -44,6 +45,7 @@ export default function LandingPage() {
 
 function MarketingHeader() {
   const { theme, toggleTheme } = useTheme();
+  const { isLoaded, isSignedIn } = useUser();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -101,19 +103,29 @@ function MarketingHeader() {
             {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
           </button>
 
-          <Link
-            to="/sign-in"
-            className="hidden sm:block px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-main)] transition-colors"
-          >
-            Sign in
-          </Link>
-
-          <Link
-            to="/sign-up"
-            className="px-4 py-2 text-sm font-medium bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-lg hover:opacity-90 transition-all"
-          >
-            Start Free
-          </Link>
+          {isLoaded && isSignedIn ? (
+            <Link
+              to="/dashboard"
+              className="px-4 py-2 text-sm font-medium bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-lg hover:opacity-90 transition-all"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link
+                to="/sign-in"
+                className="hidden sm:block px-4 py-2 text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text-main)] transition-colors"
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/sign-up"
+                className="px-4 py-2 text-sm font-medium bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-lg hover:opacity-90 transition-all"
+              >
+                Start Free
+              </Link>
+            </>
+          )}
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -139,13 +151,23 @@ function MarketingHeader() {
                 {link.label}
               </a>
             ))}
-            <Link
-              to="/sign-in"
-              onClick={() => setMobileOpen(false)}
-              className="block text-sm text-[var(--color-text-secondary)]"
-            >
-              Sign in
-            </Link>
+            {isLoaded && isSignedIn ? (
+              <Link
+                to="/dashboard"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm font-medium text-[var(--color-text-main)]"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                to="/sign-in"
+                onClick={() => setMobileOpen(false)}
+                className="block text-sm text-[var(--color-text-secondary)]"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       )}
