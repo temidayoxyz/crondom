@@ -296,21 +296,33 @@ function SchedulerRing() {
   );
 }
 
-// ─── Section 2: The $0 Stack ──────────────────────────────
+// ─── Section 2: How Scheduling Works ─────────────────────
 
 function StackSection() {
-  const layers = [
+  const steps = [
     {
-      label: "Hosting layer",
-      items: ["Static application", "Global CDN", "Zero maintenance"],
+      label: "1. Define the job",
+      items: [
+        "Name your job and choose an HTTP method",
+        "Set the endpoint URL and request headers",
+        "Write a cron expression or pick a preset",
+      ],
     },
     {
-      label: "Data layer",
-      items: ["Job definitions", "Execution logs", "Real-time queries"],
+      label: "2. Scheduler checks",
+      items: [
+        "Your job is checked automatically when due",
+        "The HTTP request is sent to your endpoint",
+        "Response status and body are captured",
+      ],
     },
     {
-      label: "Scheduler layer",
-      items: ["Every-60s checks", "HTTP execution", "Automatic retries"],
+      label: "3. Results are stored",
+      items: [
+        "Every execution is logged with full details",
+        "Status codes, duration, and output preserved",
+        "Review failures and retry when needed",
+      ],
     },
   ];
 
@@ -319,54 +331,55 @@ function StackSection() {
       <div className="max-w-[1240px] mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-[var(--color-text-main)] mb-4">
-            A scheduler built on infrastructure you already get for free.
+            The request lifecycle, end to end.
           </h2>
           <p className="text-[var(--color-text-secondary)] max-w-xl mx-auto">
-            Every layer of the stack runs on free tier services. No provisioning, no billing alerts, no surprise charges.
+            From definition to execution to inspection — every step is transparent and predictable.
           </p>
         </div>
 
-        {/* Architecture diagram */}
-        <div className="relative max-w-3xl mx-auto mb-16">
-          <div className="grid grid-cols-3 gap-4">
-            {layers.map((layer, i) => (
+        {/* Three-column flow */}
+        <div className="relative max-w-4xl mx-auto mb-16">
+          <div className="grid md:grid-cols-3 gap-6">
+            {steps.map((step, i) => (
               <div
-                key={layer.label}
-                className="relative group bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 hover:border-[var(--color-green-strong)]/20 transition-all"
+                key={step.label}
+                className="relative bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 hover:border-[var(--color-green-strong)]/20 transition-all"
               >
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-2 h-2 rounded-full bg-[var(--color-green-signal)]" />
-                  <span className="text-xs font-medium text-[var(--color-text-muted)] uppercase tracking-wider">{layer.label}</span>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 rounded-full bg-[var(--color-green-strong)]/5 flex items-center justify-center">
+                    <span className="text-xs font-bold text-[var(--color-green-strong)]">{i + 1}</span>
+                  </div>
+                  <span className="text-sm font-semibold text-[var(--color-text-main)]">{step.label.replace(/^\d+\. /, '')}</span>
                 </div>
-                <ul className="space-y-2">
-                  {layer.items.map((item) => (
-                    <li key={item} className="text-sm text-[var(--color-text-secondary)] flex items-center gap-2">
-                      <div className="w-1 h-1 rounded-full bg-[var(--color-border-strong)]" />
+                <ul className="space-y-2.5">
+                  {step.items.map((item) => (
+                    <li key={item} className="text-sm text-[var(--color-text-secondary)] flex items-start gap-2">
+                      <span className="text-[var(--color-green-signal)] mt-0.5 shrink-0">—</span>
                       {item}
                     </li>
                   ))}
                 </ul>
-                {/* Connector arrows */}
-                {i < layers.length - 1 && (
-                  <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)]">
-                    <ArrowRight size={16} />
+                {i < steps.length - 1 && (
+                  <div className="hidden md:block absolute -right-4 top-1/3 text-[var(--color-text-muted)]">
+                    <ArrowRight size={18} />
                   </div>
                 )}
               </div>
             ))}
           </div>
 
-          {/* Flow line */}
-          <div className="mt-8 flex items-center justify-center gap-3 text-xs text-[var(--color-text-muted)]">
-            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">User dashboard</span>
+          {/* Flow visualization */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-2 text-xs text-[var(--color-text-muted)]">
+            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Dashboard</span>
             <ArrowRight size={12} />
-            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Job record</span>
+            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Schedule</span>
             <ArrowRight size={12} />
-            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Scheduler</span>
+            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Execute</span>
             <ArrowRight size={12} />
-            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Your endpoint</span>
+            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Log</span>
             <ArrowRight size={12} />
-            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Execution log</span>
+            <span className="px-3 py-1.5 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full">Review</span>
           </div>
         </div>
 
@@ -374,19 +387,19 @@ function StackSection() {
         <div className="grid md:grid-cols-3 gap-4 max-w-3xl mx-auto">
           {[
             {
-              icon: <Play size={18} />,
-              title: "Scheduler runs it",
-              desc: "A workflow checks due jobs and executes their HTTP requests.",
+              icon: <Clock size={18} />,
+              title: "Timed execution",
+              desc: "Jobs run on the schedule you define. No manual triggering, no missed intervals.",
             },
             {
               icon: <Terminal size={18} />,
-              title: "Data stores it",
-              desc: "Jobs and execution logs stay inside your database.",
+              title: "Full request control",
+              desc: "Set method, headers, and body. Every HTTP detail is configurable per job.",
             },
             {
-              icon: <Globe size={18} />,
-              title: "Frontend hosts it",
-              desc: "The application remains lightweight, static, and simple to deploy.",
+              icon: <Activity size={18} />,
+              title: "Complete visibility",
+              desc: "Every execution is logged with status, duration, response, and error details.",
             },
           ].map((card) => (
             <div
