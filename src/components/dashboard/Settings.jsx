@@ -1,28 +1,28 @@
-import { useState } from "react";
-import { useUser } from "@clerk/clerk-react";
-import { Moon, Sun, Globe, Clock, User } from "lucide-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
+import { Moon, Sun, Globe, LogOut, Shield } from "lucide-react";
 import { useTheme } from "../../hooks/useTheme.js";
 
 export default function Settings() {
   const { user } = useUser();
+  const { signOut } = useClerk();
   const { theme, toggleTheme } = useTheme();
 
   const sections = [
     {
-      title: "Profile",
-      icon: User,
+      title: "Account",
+      icon: Shield,
       fields: [
         { label: "Name", value: user?.fullName || "—" },
         { label: "Email", value: user?.primaryEmailAddress?.emailAddress || "—" },
+        { label: "Session", control: "signout" },
       ],
     },
     {
       title: "Preferences",
       icon: Globe,
       fields: [
-        { label: "Theme", value: "Controls", control: "theme" },
+        { label: "Theme", control: "theme" },
         { label: "Timezone", value: Intl.DateTimeFormat().resolvedOptions().timeZone },
-        { label: "Date format", value: "24-hour" },
       ],
     },
   ];
@@ -50,6 +50,14 @@ export default function Settings() {
                     >
                       {theme === "light" ? <Moon size={14} /> : <Sun size={14} />}
                       {theme === "light" ? "Dark" : "Light"}
+                    </button>
+                  ) : field.control === "signout" ? (
+                    <button
+                      onClick={() => signOut({ redirectUrl: "/" })}
+                      className="flex items-center gap-2 px-3 py-1.5 border border-[var(--color-border)] rounded-lg text-sm text-[var(--color-red-error)] hover:bg-[var(--color-red-error)]/5 transition-all"
+                    >
+                      <LogOut size={14} />
+                      Sign out
                     </button>
                   ) : (
                     <span className="text-sm text-[var(--color-text-main)]">{field.value}</span>
