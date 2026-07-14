@@ -1,1 +1,138 @@
 @import "tailwindcss";
+
+/* Class-based dark mode for theme toggle */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Design System ─────────────────────────────────────── */
+
+@theme {
+  /* Light theme */
+  --color-bg-main: #F7F8FA;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-secondary: #F0F2F5;
+  --color-text-main: #111318;
+  --color-text-secondary: #5C626D;
+  --color-text-muted: #8A909B;
+  --color-border: #DDE1E7;
+  --color-border-strong: #C9CED6;
+
+  /* Brand */
+  --color-green-signal: #79E66B;
+  --color-green-strong: #42C95A;
+  --color-blue-electric: #4E7CFF;
+  --color-blue-soft: #DCE6FF;
+  --color-amber-warning: #F4B942;
+  --color-red-error: #EF5B5B;
+  --color-cyan-info: #4CC9D9;
+
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Spacing */
+  --spacing-section: 8rem;
+  --spacing-section-mobile: 4rem;
+}
+
+/* ─── Dark theme overrides ──────────────────────────────── */
+
+.dark {
+  --color-bg-main: #0B0D10;
+  --color-bg-elevated: #111419;
+  --color-bg-secondary: #171B21;
+  --color-text-main: #F4F6F8;
+  --color-text-secondary: #A7ADB7;
+  --color-text-muted: #747B86;
+  --color-border: #272C34;
+  --color-border-strong: #373E48;
+}
+
+/* ─── Base styles ───────────────────────────────────────── */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg-main);
+  color: var(--color-text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background-color: var(--color-green-signal);
+  color: #111318;
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+/* ─── Scheduler ring animation ──────────────────────────── */
+
+@keyframes scheduler-pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@keyframes request-travel {
+  0% { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin-ring {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-scheduler-pulse {
+  animation: scheduler-pulse 2s ease-in-out infinite;
+}
+
+.animate-request-travel {
+  animation: request-travel 3s linear infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.animate-spin-ring {
+  animation: spin-ring 60s linear infinite;
+}
+
+/* ─── Reduced motion ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

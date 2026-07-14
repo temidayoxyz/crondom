@@ -1,0 +1,252 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
+import { ArrowLeft, Plus, X } from "lucide-react";
+import { turso } from "../../lib/turso.js";
+
+export default function JobForm() {
+  const { user } = useUser();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const isEdit = Boolean(id);
+
+  const [form, setForm] = useState({
+    name: "",
+    expression: "*/5 * * * *",
+    url: "",
+    method: "GET",
+    headers: "{}",
+    body: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!id || !user) return;
+    turso
+      .execute({
+        sql: "SELECT * FROM cron_jobs WHERE id = ? AND user_id = ?",
+        args: [id, user.id],
+      })
+      .then((res) => {
+        if (res.rows.length === 0) {
+          navigate("/dashboard/jobs");
+          return;
+        }
+        const job = res.rows[0];
+        setForm({
+          name: job.name,
+          expression: job.expression,
+          url: job.url,
+          method: job.method,
+          headers: job.headers,
+          body: job.body || "",
+        });
+      })
+      .catch((err) => setError(err.message));
+  }, [id, user]);
+
+  const cronLabels = {
+    "* * * * *": "Every minute",
+    "*/5 * * * *": "Every five minutes",
+    "*/15 * * * *": "Every fifteen minutes",
+    "0 * * * *": "Every hour",
+    "0 */6 * * *": "Every six hours",
+    "0 0 * * *": "Daily at midnight",
+    "0 9 * * 1-5": "Weekdays at 9 AM",
+  };
+
+  function update(field, value) {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setError(null);
+
+    if (!form.name.trim() || !form.url.trim()) {
+      setError("Name and URL are required.");
+      setSaving(false);
+      return;
+    }
+
+    try {
+      if (isEdit) {
+        await turso.execute({
+          sql: `UPDATE cron_jobs
+                SET name = ?, expression = ?, url = ?, method = ?,
+                    headers = ?, body = ?, updated_at = datetime('now')
+                WHERE id = ? AND user_id = ?`,
+          args: [form.name, form.expression, form.url, form.method, form.headers, form.body, id, user.id],
+        });
+      } else {
+        await turso.execute({
+          sql: `INSERT INTO cron_jobs (id, user_id, name, expression, url, method, headers, body)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [crypto.randomUUID(), user.id, form.name, form.expression, form.url, form.method, form.headers, form.body],
+        });
+      }
+      navigate("/dashboard/jobs");
+    } catch (err) {
+      setError(err.message);
+      setSaving(false);
+    }
+  }
+
+  const methods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <div className="flex items-center gap-4 mb-6">
+        <button onClick={() => navigate("/dashboard/jobs")} className="p-1.5 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-secondary)] transition-all">
+          <ArrowLeft size={18} />
+        </button>
+        <h1 className="text-xl font-bold text-[var(--color-text-main)]">
+          {isEdit ? "Edit Job" : "New Job"}
+        </h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic details */}
+        <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Basic details</h2>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Job name</label>
+            <input
+              type="text"
+              value={form.name}
+              onChange={(e) => update("name", e.target.value)}
+              placeholder="API health check"
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Endpoint URL</label>
+            <input
+              type="url"
+              value={form.url}
+              onChange={(e) => update("url", e.target.value)}
+              placeholder="https://api.example.com/health"
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">HTTP method</label>
+            <div className="flex gap-2">
+              {methods.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => update("method", m)}
+                  className={`px-4 py-2 text-xs font-mono font-medium rounded-xl border transition-all ${
+                    form.method === m
+                      ? "bg-[var(--color-green-strong)]/5 border-[var(--color-green-strong)]/20 text-[var(--color-green-strong)]"
+                      : "bg-[var(--color-bg-secondary)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Schedule */}
+        <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Schedule</h2>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Cron expression</label>
+            <input
+              type="text"
+              value={form.expression}
+              onChange={(e) => update("expression", e.target.value)}
+              placeholder="*/5 * * * *"
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
+            />
+            <p className="mt-1.5 text-xs text-[var(--color-green-strong)] font-mono">
+              {cronLabels[form.expression] || "Custom schedule"}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Quick presets</label>
+            <div className="flex flex-wrap gap-1.5">
+              {Object.entries(cronLabels).slice(0, 4).map(([expr, label]) => (
+                <button
+                  key={expr}
+                  type="button"
+                  onClick={() => update("expression", expr)}
+                  className={`px-2.5 py-1 text-[11px] font-mono rounded-lg border transition-all ${
+                    form.expression === expr
+                      ? "bg-[var(--color-green-strong)]/5 border-[var(--color-green-strong)]/20 text-[var(--color-green-strong)]"
+                      : "bg-[var(--color-bg-secondary)] border-[var(--color-border)] text-[var(--color-text-muted)]"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Request */}
+        <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
+          <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Request</h2>
+
+          <div>
+            <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Headers (JSON)</label>
+            <textarea
+              value={form.headers}
+              onChange={(e) => update("headers", e.target.value)}
+              rows={3}
+              placeholder='{"Authorization": "Bearer xxx"}'
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
+            />
+          </div>
+
+          {form.method !== "GET" && form.method !== "HEAD" && (
+            <div>
+              <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Body</label>
+              <textarea
+                value={form.body}
+                onChange={(e) => update("body", e.target.value)}
+                rows={4}
+                placeholder='{"key": "value"}'
+                className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
+              />
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-[var(--color-red-error)]/5 border border-[var(--color-red-error)]/20 rounded-xl text-sm text-[var(--color-red-error)]">
+            <AlertTriangle size={14} />
+            {error}
+          </div>
+        )}
+
+        <div className="flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-6 py-2.5 bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-xl text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
+          >
+            {saving ? "Saving..." : isEdit ? "Update job" : "Create job"}
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/dashboard/jobs")}
+            className="px-6 py-2.5 border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl text-sm hover:bg-[var(--color-bg-secondary)] transition-all"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
