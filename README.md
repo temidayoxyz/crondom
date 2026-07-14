@@ -2,15 +2,16 @@
 
 A web UI for managing cron jobs — built with **Vite + React**, talking directly to **Turso** from the browser.
 
+**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)
 **Scheduler engine**: [crondom-scheduler](https://github.com/temidayoxyz/crondom-scheduler)
 
 ## Stack
 
 - **Framework**: React 18 + React Router
-- **Auth**: Clerk (free — 10K users)
+- **Auth**: Clerk
 - **Build**: Vite
 - **Database**: Turso (via `@libsql/client/web`)
-- **Hosting**: GitHub Pages
+- **Hosting**: GitHub Pages (custom domain)
 
 ## Setup
 
@@ -44,8 +45,6 @@ Add these secrets to **Settings → Secrets and variables → Actions**:
 | `VITE_CLERK_PUBLISHABLE_KEY` | Your Clerk publishable key |
 
 Push to `main` — deploy workflow builds and pushes to `gh-pages`.
-
-Your site: `https://temidayoxyz.github.io/crondom/`
 
 ---
 
