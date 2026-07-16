@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { ArrowLeft } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronPresets } from "../../lib/labels.js";
-import { createJob } from "../../lib/worker.js";
+import { registerInngestJob } from "../../lib/inngest.js";
 
 export default function JobForm() {
   const { user } = useUser();
@@ -80,7 +80,8 @@ export default function JobForm() {
           args: [jobId, user.id, form.name, form.expression, form.url, form.method, form.headers, form.body],
         });
         // Register with Inngest
-        createJob({
+        registerInngestJob({
+          jobId,
           user_id: user.id,
           name: form.name,
           expression: form.expression,
