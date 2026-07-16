@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { ArrowLeft, Plus, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronPresets } from "../../lib/labels.js";
+import { createJob } from "../../lib/worker.js";
 
 export default function JobForm() {
   const { user } = useUser();
@@ -72,11 +73,22 @@ export default function JobForm() {
           args: [form.name, form.expression, form.url, form.method, form.headers, form.body, id, user.id],
         });
       } else {
+        const jobId = crypto.randomUUID();
         await turso.execute({
           sql: `INSERT INTO cron_jobs (id, user_id, name, expression, url, method, headers, body)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-          args: [crypto.randomUUID(), user.id, form.name, form.expression, form.url, form.method, form.headers, form.body],
+          args: [jobId, user.id, form.name, form.expression, form.url, form.method, form.headers, form.body],
         });
+        // Register with Inngest
+        createJob({
+          user_id: user.id,
+          name: form.name,
+          expression: form.expression,
+          url: form.url,
+          method: form.method,
+          headers: form.headers,
+          body: form.body,
+        }).catch((err) => console.error("Inngest registration:", err));
       }
       navigate("/dashboard/jobs");
     } catch (err) {
@@ -99,46 +111,30 @@ export default function JobForm() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Basic details */}
         <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
           <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Basic details</h2>
-
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Job name</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => update("name", e.target.value)}
+            <input type="text" value={form.name} onChange={(e) => update("name", e.target.value)}
               placeholder="API health check"
-              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
-            />
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-green-strong)] transition-colors" />
           </div>
-
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Endpoint URL</label>
-            <input
-              type="url"
-              value={form.url}
-              onChange={(e) => update("url", e.target.value)}
+            <input type="url" value={form.url} onChange={(e) => update("url", e.target.value)}
               placeholder="https://api.example.com/health"
-              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
-            />
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors" />
           </div>
-
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">HTTP method</label>
             <div className="flex gap-2">
               {methods.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => update("method", m)}
+                <button key={m} type="button" onClick={() => update("method", m)}
                   className={`px-4 py-2 text-xs font-mono font-medium rounded-xl border transition-all ${
                     form.method === m
                       ? "bg-[var(--color-green-strong)]/5 border-[var(--color-green-strong)]/20 text-[var(--color-green-strong)]"
                       : "bg-[var(--color-bg-secondary)] border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)]"
-                  }`}
-                >
+                  }`}>
                   {m}
                 </button>
               ))}
@@ -146,57 +142,37 @@ export default function JobForm() {
           </div>
         </div>
 
-        {/* Schedule */}
         <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
           <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Schedule</h2>
-
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">How often should this run?</label>
-            <select
-              value={form.expression}
-              onChange={(e) => update("expression", e.target.value)}
+            <select value={form.expression} onChange={(e) => update("expression", e.target.value)}
               className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] focus:outline-none focus:border-[var(--color-green-strong)] transition-colors appearance-none"
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238A909B' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 12px center',
-                paddingRight: '36px',
-              }}
-            >
+                backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center', paddingRight: '36px',
+              }}>
               {cronPresets.map((preset) => (
-                <option key={preset.value} value={preset.value}>
-                  {preset.label}
-                </option>
+                <option key={preset.value} value={preset.value}>{preset.label}</option>
               ))}
             </select>
           </div>
         </div>
 
-        {/* Request */}
         <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-2xl p-6 space-y-4">
           <h2 className="text-sm font-semibold text-[var(--color-text-main)]">Request</h2>
-
           <div>
             <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Headers (JSON)</label>
-            <textarea
-              value={form.headers}
-              onChange={(e) => update("headers", e.target.value)}
-              rows={3}
+            <textarea value={form.headers} onChange={(e) => update("headers", e.target.value)} rows={3}
               placeholder='{"Authorization": "Bearer xxx"}'
-              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
-            />
+              className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors" />
           </div>
-
           {form.method !== "GET" && form.method !== "HEAD" && (
             <div>
               <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1.5">Body</label>
-              <textarea
-                value={form.body}
-                onChange={(e) => update("body", e.target.value)}
-                rows={4}
+              <textarea value={form.body} onChange={(e) => update("body", e.target.value)} rows={4}
                 placeholder='{"key": "value"}'
-                className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors"
-              />
+                className="w-full px-3.5 py-2.5 text-sm bg-[var(--color-bg-secondary)] border border-[var(--color-border)] rounded-xl text-[var(--color-text-main)] font-mono focus:outline-none focus:border-[var(--color-green-strong)] transition-colors" />
             </div>
           )}
         </div>
@@ -209,18 +185,12 @@ export default function JobForm() {
         )}
 
         <div className="flex items-center gap-3">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-6 py-2.5 bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-xl text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all"
-          >
+          <button type="submit" disabled={saving}
+            className="px-6 py-2.5 bg-[var(--color-text-main)] text-[var(--color-bg-main)] rounded-xl text-sm font-medium hover:opacity-90 disabled:opacity-50 transition-all">
             {saving ? "Saving..." : isEdit ? "Update job" : "Create job"}
           </button>
-          <button
-            type="button"
-            onClick={() => navigate("/dashboard/jobs")}
-            className="px-6 py-2.5 border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl text-sm hover:bg-[var(--color-bg-secondary)] transition-all"
-          >
+          <button type="button" onClick={() => navigate("/dashboard/jobs")}
+            className="px-6 py-2.5 border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-xl text-sm hover:bg-[var(--color-bg-secondary)] transition-all">
             Cancel
           </button>
         </div>
