@@ -1,52 +1,91 @@
 # crondom
 
-A web UI for managing cron jobs — built with **Vite + React**, talking directly to **Turso** from the browser.
+A **$0 stack** HTTP cron job manager — create, schedule, and monitor jobs from the browser.
 
-**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)  
-**Scheduler engine**: [crondom-engine](../crondom-engine) (GCP e2-micro)
+**Live app:** [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)
+
+## What this repo is
+
+This is the **web UI**. Users sign in, manage cron jobs, and view execution history. The browser talks to **Turso** directly.
+
+Jobs are executed by a separate always-on process:
+
+| Repo | Role | Deploy |
+|---|---|---|
+| **crondom** (this repo) | Dashboard UI | GitHub Pages |
+| **[crondom-engine](https://github.com/temidayoxyz/crondom-engine)** | Runs due jobs every 60s | GCP e2-micro (free tier) |
+
+```
+Browser (this app) ──► Turso (cron_jobs, execution_logs)
+                              ▲
+                              │
+                      crondom-engine (VM)
+                           every 60s
+                           fetch due URLs
+```
+
+Both apps share the **same Turso database**. The UI writes jobs; the engine executes them and writes logs.
 
 ## Stack
 
-- **Framework**: React 18 + React Router
-- **Auth**: Clerk
-- **Build**: Vite
-- **Database**: Turso (via `@libsql/client/web`)
-- **Hosting**: GitHub Pages (custom domain)
+- **UI:** React 18 + React Router + Vite
+- **Auth:** Clerk
+- **Database:** Turso (`@libsql/client/web`)
+- **Hosting:** GitHub Pages (custom domain)
 
 ## Setup
 
-### 1. Create a Clerk application
+### 1. Clerk
 
-Go to [clerk.com](https://clerk.com) → **Add Application** → name it `crondom` → copy the **Publishable Key** (starts with `pk_live_`)
+Create an application at [clerk.com](https://clerk.com) and copy the **Publishable Key** (`pk_live_…` or `pk_test_…`).
 
-### 2. Set up environment
+### 2. Environment
 
 ```bash
 cp .env.example .env
 ```
 
-Fill in your Turso DB URL, Turso token, and Clerk publishable key.
+| Variable | Description |
+|---|---|
+| `VITE_TURSO_DATABASE_URL` | Turso libsql URL |
+| `VITE_TURSO_AUTH_TOKEN` | Turso auth token (read/write) |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key |
 
-### 3. Install and run
+Use the **same** Turso URL and token in [crondom-engine](https://github.com/temidayoxyz/crondom-engine).
+
+### 3. Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-### 4. Deploy to GitHub Pages
+The engine is not required for browsing the UI, but jobs will not fire until the engine is running against the same database.
 
-Add these secrets to **Settings → Secrets and variables → Actions**:
+### 4. Database schema
+
+Tables live in Turso (`cron_jobs`, `execution_logs`). Initialize once via the engine:
+
+```bash
+# in the crondom-engine repo
+npm run db:init
+```
+
+Or apply `db/schema.sql` from this repo with the Turso CLI.
+
+### 5. Deploy (GitHub Pages)
+
+Add repository secrets under **Settings → Secrets and variables → Actions**:
 
 | Secret | Value |
 |---|---|
-| `VITE_TURSO_DATABASE_URL` | Your Turso DB URL |
-| `VITE_TURSO_AUTH_TOKEN` | Your Turso token |
-| `VITE_CLERK_PUBLISHABLE_KEY` | Your Clerk publishable key |
+| `VITE_TURSO_DATABASE_URL` | Turso URL |
+| `VITE_TURSO_AUTH_TOKEN` | Turso token |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk key |
 
-Push to `main` — deploy workflow builds and pushes to `gh-pages`.
+Push to `main` — the deploy workflow builds and publishes to `gh-pages`.
 
----
+## Related
 
-**Engine repo**: [crondom-engine](../crondom-engine) — always-on scheduler on a free GCP e2-micro  
-**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)
+- **Live app:** [crondom.temidayo.xyz](https://crondom.temidayo.xyz/)
+- **Engine:** [github.com/temidayoxyz/crondom-engine](https://github.com/temidayoxyz/crondom-engine)
