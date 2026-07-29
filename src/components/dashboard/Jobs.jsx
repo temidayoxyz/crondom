@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { Plus, Search, Play, Pause, Trash2, ExternalLink, CalendarCheck, Activity } from "lucide-react";
+import { Plus, Search, Play, Pause, Trash2, ExternalLink, CalendarCheck } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronLabel } from "../../lib/labels.js";
 
@@ -38,15 +38,21 @@ export default function Jobs() {
   }
 
   async function deleteJob(id) {
-    if (!confirm("Delete this job?")) return;
+    if (!confirm("Delete this job and its execution history?")) return;
     try {
+      // execution_logs references cron_jobs — clear children first
+      await turso.execute({
+        sql: "DELETE FROM execution_logs WHERE job_id = ?",
+        args: [id],
+      });
       await turso.execute({
         sql: "DELETE FROM cron_jobs WHERE id = ? AND user_id = ?",
         args: [id, user.id],
       });
-      loadJobs();
+      setJobs((prev) => prev.filter((j) => j.id !== id));
     } catch (err) {
       console.error(err);
+      alert(err.message || "Failed to delete job.");
     }
   }
 

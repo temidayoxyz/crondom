@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, AlertTriangle } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronPresets } from "../../lib/labels.js";
-import { registerInngestJob } from "../../lib/inngest.js";
 
 export default function JobForm() {
   const { user } = useUser();
@@ -79,17 +78,6 @@ export default function JobForm() {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           args: [jobId, user.id, form.name, form.expression, form.url, form.method, form.headers, form.body],
         });
-        // Register with Inngest
-        registerInngestJob({
-          jobId,
-          user_id: user.id,
-          name: form.name,
-          expression: form.expression,
-          url: form.url,
-          method: form.method,
-          headers: form.headers,
-          body: form.body,
-        }).catch((err) => console.error("Inngest registration:", err));
       }
       navigate("/dashboard/jobs");
     } catch (err) {

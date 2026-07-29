@@ -6,7 +6,6 @@ import {
   CalendarCheck,
   Activity,
   Settings,
-  FileText,
   Plus,
   ChevronLeft,
   ChevronRight,
@@ -138,13 +137,13 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--color-green-strong)]/5 text-xs text-[var(--color-green-strong)]">
-              <div className="w-1.5 h-1.5 rounded-full bg-[var(--color-green-signal)] animate-scheduler-pulse" />
-              Operational
-            </div>
-            <button className="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-secondary)] transition-all">
+            <Link
+              to="/dashboard/settings"
+              className="p-2 rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-bg-secondary)] transition-all"
+              title="Settings"
+            >
               <User size={16} />
-            </button>
+            </Link>
           </div>
         </header>
 

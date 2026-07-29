@@ -2,8 +2,8 @@
 
 A web UI for managing cron jobs — built with **Vite + React**, talking directly to **Turso** from the browser.
 
-**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)
-**Scheduler engine**: [crondom-scheduler](https://github.com/temidayoxyz/crondom-scheduler)
+**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)  
+**Scheduler engine**: [crondom-engine](../crondom-engine) (GCP e2-micro)
 
 ## Stack
 
@@ -48,4 +48,5 @@ Push to `main` — deploy workflow builds and pushes to `gh-pages`.
 
 ---
 
-**Scheduler repo**: [crondom-scheduler](https://github.com/temidayoxyz/crondom-scheduler)
+**Engine repo**: [crondom-engine](../crondom-engine) — always-on scheduler on a free GCP e2-micro  
+**Live app**: [https://crondom.temidayo.xyz/](https://crondom.temidayo.xyz/)

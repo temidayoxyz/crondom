@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
-import { ArrowLeft, Play, Pause, Edit3, Trash2, Clock, Globe, Terminal } from "lucide-react";
+import { ArrowLeft, Edit3, Clock, Globe, Terminal, Activity } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronLabel } from "../../lib/labels.js";
 
