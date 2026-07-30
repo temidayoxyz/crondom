@@ -4,6 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { ArrowLeft, Edit3, Clock, Globe, Terminal, Activity } from "lucide-react";
 import { turso } from "../../lib/turso.js";
 import { cronLabel } from "../../lib/labels.js";
+import { formatDateTime } from "../../lib/dates.js";
 
 export default function JobDetail() {
   const { user } = useUser();
@@ -108,7 +109,7 @@ export default function JobDetail() {
                     "bg-[var(--color-amber-warning)]"
                   }`} />
                   <span className="text-xs text-[var(--color-text-secondary)] font-mono">
-                    {new Date(log.started_at + "Z").toLocaleString()}
+                    {formatDateTime(log.started_at)}
                   </span>
                 </div>
                 <span className="text-xs font-mono text-[var(--color-text-muted)]">
